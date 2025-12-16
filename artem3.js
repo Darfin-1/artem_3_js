@@ -111,12 +111,12 @@ function getLateEmployees(startDate, endDate) {
         if (recordDate >= start && recordDate <= end) {
             if (isLate(record.in)) {
 
-                // Вычисляем сотрудника по ID
+                //Вычисляем сотрудника по ID
 
                 const employee = employees.find(emp => emp.id === record.user_id);
                 if (employee) {
 
-                    // Добавляем в Map с информацией об опозданиях
+                    //Добавляем в Map с информацией об опозданиях
 
                     if (!lateEmployees.has(employee.id)) {
                         lateEmployees.set(employee.id, {
@@ -134,12 +134,10 @@ function getLateEmployees(startDate, endDate) {
         }
     });
     
-    // Преобразуем Map в массив
+    //Преобразуем Map в массив
 
     return Array.from(lateEmployees.values());
 }
-
-// Функция для вывода результатов
 
 function displayLateEmployees(lateEmployees) {
     if (lateEmployees.length === 0) {
@@ -162,13 +160,86 @@ function displayLateEmployees(lateEmployees) {
     });
 }
 
-// Получаем опаздавших сотрудников с 8 по 12 декабря
+function calculateLatePercentage(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    //Считаем общее количество записей за период
+
+    let totalRecords = 0;
+    let lateRecords = 0;
+    
+    timeRecords.forEach(record => {
+        const recordDate = new Date(record.date);
+        
+        if (recordDate >= start && recordDate <= end) {
+            totalRecords++;
+            if (isLate(record.in)) {
+                lateRecords++;
+            }
+        }
+    });
+    
+    //Считаем проценты
+
+    const percentage = totalRecords > 0 ? (lateRecords / totalRecords * 100) : 0;
+    
+    return {
+        totalRecords,
+        lateRecords,
+        percentage: percentage.toFixed(2)
+    };
+}
+
+//Получаем опаздавших сотрудников с 8 по 12 декабря
 
 const startDate = "2025-12-08";
 const endDate = "2025-12-12";
 
-const result = getLateEmployees(startDate, endDate); 
+console.log("=".repeat(60));
+console.log("АНАЛИЗ ОПОЗДАНИЙ С 8 ПО 12 ДЕКАБРЯ 2025 ГОДА");
+console.log("=".repeat(60));
 
-// Вывод результата
+//Получаем список опоздавших
+
+const result = getLateEmployees(startDate, endDate);
+
+//Выводим
 
 displayLateEmployees(result);
+
+console.log("\n" + "=".repeat(60));
+
+//Выводим процент опоздавших
+
+const stats = calculateLatePercentage(startDate, endDate);
+console.log("\nСТАТИСТИКА ОПОЗДАНИЙ:");
+console.log("-".repeat(40));
+console.log(`Всего записей за период: ${stats.totalRecords}`);
+console.log(`Из них опозданий: ${stats.lateRecords}`);
+console.log(`Процент опозданий: ${stats.percentage}%`);
+
+// 4. Дополнительная статистика
+
+console.log("\nДОПОЛНИТЕЛЬНАЯ СТАТИСТИКА:");
+console.log("-".repeat(40));
+
+// Сколько сотрудников опаздывало хоть раз
+
+const lateEmployeesCount = result.length;
+const totalEmployees = employees.length;
+const employeesLatePercentage = (lateEmployeesCount / totalEmployees * 100).toFixed(2);
+
+console.log(`Всего сотрудников: ${totalEmployees}`);
+console.log(`Сотрудников с опозданиями: ${lateEmployeesCount}`);
+console.log(`Процент сотрудников с опозданиями: ${employeesLatePercentage}%`);
+
+// Среднее количество опозданий на сотрудника
+
+if (lateEmployeesCount > 0) {
+    const totalLateDays = result.reduce((sum, emp) => sum + emp.lateDays.length, 0);
+    const averageLateDays = (totalLateDays / lateEmployeesCount).toFixed(2);
+    console.log(`Среднее количество опозданий на опаздывающего сотрудника: ${averageLateDays}`);
+}
+
+console.log("=".repeat(60));
