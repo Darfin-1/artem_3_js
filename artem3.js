@@ -77,13 +77,13 @@ const timeRecords = [
     {user_id: "9.110921", date: "2025-12-10", in: "8:55", out: "17:00" },
     {user_id: "9.110921", date: "2025-12-11", in: "8:55", out: "17:00" },
     {user_id: "9.110921", date: "2025-12-12", in: "8:55", out: "17:00" },
-     //10
+        //10
     {user_id: "10.123431", date: "2025-12-08", in: "8:55", out: "17:00"},
     {user_id: "10.123431", date: "2025-12-09", in: "8:55", out: "17:00"},
     {user_id: "10.123431", date: "2025-12-10", in: "8:55", out: "17:00"},
     {user_id: "10.123431", date: "2025-12-11", in: "8:55", out: "17:00"},
     {user_id: "10.123431", date: "2025-12-12", in: "8:55", out: "17:00"}
-    //Расчёт окончен))
+        //Расчёт окончен))
 ];
 
 
@@ -163,8 +163,6 @@ function displayLateEmployees(lateEmployees) {
 function calculateLatePercentage(startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
-    //Считаем общее количество записей за период
 
     let totalRecords = 0;
     let lateRecords = 0;
@@ -179,8 +177,6 @@ function calculateLatePercentage(startDate, endDate) {
             }
         }
     });
-    
-    //Считаем проценты
 
     const percentage = totalRecords > 0 ? (lateRecords / totalRecords * 100) : 0;
     
@@ -191,7 +187,7 @@ function calculateLatePercentage(startDate, endDate) {
     };
 }
 
-//Получаем опаздавших сотрудников с 8 по 12 декабря
+// опаздавшие сотрудники с 8 по 12 
 
 const startDate = "2025-12-08";
 const endDate = "2025-12-12";
@@ -200,17 +196,17 @@ console.log("=".repeat(60));
 console.log("АНАЛИЗ ОПОЗДАНИЙ С 8 ПО 12 ДЕКАБРЯ 2025 ГОДА");
 console.log("=".repeat(60));
 
-//Получаем список опоздавших
+// Список
 
 const result = getLateEmployees(startDate, endDate);
 
-//Выводим
+// Вывод
 
 displayLateEmployees(result);
 
 console.log("\n" + "=".repeat(60));
 
-//Выводим процент опоздавших
+//Вывод процента опоздавших
 
 const stats = calculateLatePercentage(startDate, endDate);
 console.log("\nСТАТИСТИКА ОПОЗДАНИЙ:");
@@ -240,6 +236,52 @@ if (lateEmployeesCount > 0) {
     const totalLateDays = result.reduce((sum, emp) => sum + emp.lateDays.length, 0);
     const averageLateDays = (totalLateDays / lateEmployeesCount).toFixed(2);
     console.log(`Среднее количество опозданий на опаздывающего сотрудника: ${averageLateDays}`);
+}
+
+function getShortWorkEmployees(targetDate) {
+    const dateStr = targetDate.toISOString().split('T')[0];
+    const eightHours = 8 * 60;
+    
+    const result = [];
+    
+    timeRecords.forEach(record => {
+        if (record.date === dateStr) {
+            const workTime = timeToMinutes(record.out) - timeToMinutes(record.in);
+            
+            if (workTime < eightHours) {
+                const employee = employees.find(emp => emp.id === record.user_id);
+                if (employee) {
+                    const deficit = eightHours - workTime;
+                    const deficitHours = Math.floor(deficit / 60);
+                    const deficitMinutes = deficit % 60;
+                    
+                    result.push({
+                        name: employee.name,
+                        id: employee.id,
+                        workTime: `${Math.floor(workTime/60)}ч ${workTime%60}м`,
+                        deficit: `${deficitHours}ч ${deficitMinutes}м`
+                    });
+                }
+            }
+        }
+    });
+    
+    return result;
+}
+
+const targetDate = new Date("2025-12-09");
+const shortWorkers = getShortWorkEmployees(targetDate);
+
+console.log("\nСотрудники, отработавшие менее 8 часов 9 декабря 2025:");
+console.log("=".repeat(60));
+
+if (shortWorkers.length === 0) {
+    console.log("Все отработали норму (8+ часов)");
+} else {
+    shortWorkers.forEach(emp => {
+        console.log(`${emp.name}: ${emp.workTime} (недоработка: ${emp.deficit})`);
+    });
+    console.log(`\nВсего: ${shortWorkers.length} сотрудников`);
 }
 
 console.log("=".repeat(60));
