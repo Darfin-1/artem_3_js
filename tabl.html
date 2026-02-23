@@ -2,32 +2,20 @@
 <html>
 <head>
     <title>Таблица</title>
+
+    <!--Подключает React production-->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!--Для JSX-->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-    <div>
-        <center>
-            <h2>Приход и уход сотрудников</h2>
+    <div id="root"></div>
 
-            <table id="timeTable" border="1">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>ФИО</th>
-                        <th>2025-12-08</th>
-                        <th>2025-12-09</th>
-                        <th>2025-12-10</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                </tbody>
-            </table>
-        </center>
-    </div>
-
-    <script>
-     
+    <script type="text/babel">
+        // Данные
         const people = [
-            {id: "0", name: "Иванов Александр Викторович"},    //люди
+            {id: "0", name: "Иванов Александр Викторович"},
             {id: "1", name: "Абрамов Евгений Анатольевич"},
             {id: "2", name: "Хрулёв Иван Сергеевич"},
             {id: "3", name: "Смирнов Ярослав Динисович"},
@@ -40,9 +28,8 @@
             {id: "10", name: "Трудобухова Ольга Олеговна"}
         ];
 
-       
         const time = [
-            ["0", "2025-12-08", "8:55", "17:00"],  //время прихода ухода
+            ["0", "2025-12-08", "8:55", "17:00"],
             ["0", "2025-12-09", "8:55", "17:00"],
             ["0", "2025-12-10", "8:55", "17:00"],
             ["1", "2025-12-08", "8:55", "17:00"],
@@ -77,22 +64,9 @@
             ["10", "2025-12-10", "8:55", "17:00"],
         ];
 
-        
-        let d1 = "2025-12-08";
-        let d2 = "2025-12-09";
-        let d3 = "2025-12-10"; //даты
+        let dates = ["2025-12-08", "2025-12-09", "2025-12-10"];
 
-       
-        function poiskName(uid) {
-            for (let i = 0; i < people.length; i++) {
-                if (people[i].id == uid) {
-                    return people[i].name;
-                }
-            }
-            return "не найдено"; //ищет имя по айди
-        }
-
-    
+        //ищет время по айди и дате
         function poiskTime(uid, d) {
             for (let i = 0; i < time.length; i++) {
                 if (time[i][0] == uid && time[i][1] == d) {
@@ -100,41 +74,53 @@
                 }
             }
             return "нет";
-        } //ищет время по айди и дате
-
-        
-        function risuem() {
-            let tab = document.getElementById('tableBody');
-            tab.innerHTML = '';  //рисует таблицу
-            
-           
-            for (let i = 0; i < people.length; i++) {
-                let chelovek = people[i];
-                let stroka = document.createElement('tr');
-                
-                let text = "";
-                text = text + "<td>" + chelovek.id + "</td>";
-                text = text + "<td>" + chelovek.name + "</td>";  //проход по всем людям
-                
-                
-                let vremya1 = poiskTime(chelovek.id, d1);
-                text = text + "<td>" + vremya1 + "</td>"; //время для первой даты
-                
-               
-                let vremya2 = poiskTime(chelovek.id, d2);
-                text = text + "<td>" + vremya2 + "</td>";  //второй
-                
-               
-                let vremya3 = poiskTime(chelovek.id, d3);
-                text = text + "<td>" + vremya3 + "</td>";   //третьей
-                
-                stroka.innerHTML = text;
-                tab.appendChild(stroka); 
-            }
         }
 
-      
-        risuem();   //запуск
+        //таблица
+        function Tablica() {
+            //рисует таблицу
+         return (
+             <div>
+                 <center>
+                     <h2>Приход и уход сотрудников</h2>
+
+                    <table id="timeTable" border="1">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ФИО</th>
+                                        
+                                    {dates.map(function(data) {
+                                        return <th key={data}>{data}</th>
+                                    })}
+                                </tr>
+                            </thead>
+                        <tbody>
+                                   
+                                {people.map(function(chelovek) {
+                                    return (
+                                        <tr key={chelovek.id}>
+                                            <td>{chelovek.id}</td>
+                                            <td>{chelovek.name}</td>
+                                            
+                                         
+                                            {dates.map(function(data) {
+                                                let vremya = poiskTime(chelovek.id, data);
+                                                return <td key={data}>{vremya}</td>
+                                            })}
+                                        </tr>
+                                    );
+                                })}
+                        </tbody>
+                    </table>
+                 </center>
+             </div>
+         );
+        }
+
+        let root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Tablica />);   //запуск
+
     </script>
 </body>
 </html>
